@@ -19,7 +19,7 @@ after  'deploy:rollback:revision', 'deploy:assets:rollback'
 def shared_manifest_path
   if @shared_manifest_path.nil?
     run <<-CMD.compact
-      ls #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* || touch #{shared_path.shellescape}/#{shared_assets_prefix}/manifest.yml
+      ls #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* >/dev/null 2>&1 || touch #{shared_path.shellescape}/#{shared_assets_prefix}/manifest.yml >/dev/null 2>&1
     CMD
   end
   @shared_manifest_path ||= capture("ls #{shared_path.shellescape}/#{shared_assets_prefix}/manifest*").strip
