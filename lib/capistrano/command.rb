@@ -291,17 +291,16 @@ module Capistrano
 		def environment
 			return if options[:env].nil? || options[:env].empty?
 			@environment ||= if String === options[:env]
-								 "env #{options[:env]} && . /var/.cloud66_env"
+								 ". /var/.cloud66_env && env #{options[:env]}"
 							 else
 								 env_val = options[:env].inject("env") do |string, (name, value)|
 									 value = value.to_s.gsub(/[ "]/) { |m| "\\#{m}" }
 									 string << " #{name}=#{value}"
 								 end
-
-								 env_val << ' && . /var/.cloud66_env'
+								 ". /var/.cloud66_env && #{env_val}"
 							 end
 
-			puts "Command Environment: #{@environment}"
+			puts "Command Environment: \"#{@environment}\""
 			return @environment
 		end
 	end
