@@ -300,7 +300,7 @@ module Capistrano
 								 ". /var/.cloud66_env && #{env_val}"
 							 end
 
-			puts "Command Environment: \"#{@environment}\""
+			# puts "Command Environment: \"#{@environment}\""
 			return @environment
 		end
 	end
