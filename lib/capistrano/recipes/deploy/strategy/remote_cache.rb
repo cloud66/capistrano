@@ -29,27 +29,35 @@ module Capistrano
 					File.join(shared_path, configuration[:repository_cache] || "cached-copy")
 				end
 
+				# def update_repository_cache
+				# 	logger.trace "updating the cached checkout on all servers"
+				# 	command = "if [ -d #{repository_cache} ]; then " +
+				# 		"#{source.sync(revision, repository_cache)}; " +
+				# 		"else #{source.checkout(revision, repository_cache)}; fi"
+				# 	begin
+				# 		scm_run(command)
+				# 	rescue => exc
+				# 		if exc.message =~ /fatal: Could not parse object/
+				# 			# try and clear the folder then try again
+				# 			logger.trace 'cached copy out-of-date, re-initialising checkout of cache'
+				# 			command = "rm -rf /tmp/cached-copy && mv #{repository_cache} /tmp/cached-copy"
+				# 			scm_run(command)
+				# 			command = "if [ -d #{repository_cache} ]; then " +
+				# 				"#{source.sync(revision, repository_cache)}; " +
+				# 				"else #{source.checkout(revision, repository_cache)}; fi"
+				# 			scm_run(command)
+				# 		else
+				# 			raise
+				# 		end
+				# 	end
+				# end
+
 				def update_repository_cache
 					logger.trace "updating the cached checkout on all servers"
 					command = "if [ -d #{repository_cache} ]; then " +
 						"#{source.sync(revision, repository_cache)}; " +
 						"else #{source.checkout(revision, repository_cache)}; fi"
-					begin
-						scm_run(command)
-					rescue => exc
-						if exc.message =~ /fatal: Could not parse object/
-							# try and clear the folder then try again
-							logger.trace 'cached copy out-of-date, re-initialising checkout of cache'
-							command = "rm -rf /tmp/cached-copy && mv #{repository_cache} /tmp/cached-copy"
-							scm_run(command)
-							command = "if [ -d #{repository_cache} ]; then " +
-								"#{source.sync(revision, repository_cache)}; " +
-								"else #{source.checkout(revision, repository_cache)}; fi"
-							scm_run(command)
-						else
-							raise
-						end
-					end
+					scm_run(command)
 				end
 
 				def copy_repository_cache
