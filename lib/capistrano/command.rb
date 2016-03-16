@@ -291,16 +291,16 @@ module Capistrano
 		def environment
 			if @environment.nil?
 				if options[:env].nil? || options[:env].empty?
-					@environment = '. /var/.cloud66_env && unset BUNDLE_GEMFILE &&'
+					@environment = '. /var/.cloud66_env 2>/dev/null || true && unset BUNDLE_GEMFILE &&'
 				else
 					@environment = if String === options[:env]
-									   ". /var/.cloud66_env || true && unset BUNDLE_GEMFILE || true && env #{options[:env]}"
+									   ". /var/.cloud66_env 2>/dev/null || true && unset BUNDLE_GEMFILE || true && env #{options[:env]}"
 								   else
 									   env_val = options[:env].inject("env") do |string, (name, value)|
 										   value = value.to_s.gsub(/[ "]/) { |m| "\\#{m}" }
 										   string << " #{name}=#{value}"
 									   end
-									   ". /var/.cloud66_env || true && unset BUNDLE_GEMFILE && #{env_val}"
+									   ". /var/.cloud66_env 2>/dev/null || true && unset BUNDLE_GEMFILE && #{env_val}"
 								   end
 				end
 				# puts "Command Environment: \"#{@environment}\""
