@@ -303,7 +303,7 @@ module Capistrano
 									   ". /var/.cloud66_env && unset BUNDLE_GEMFILE && #{env_val}"
 								   end
 				end
-				puts "Command Environment: \"#{@environment}\""
+				# puts "Command Environment: \"#{@environment}\""
 			end
 			return @environment
 		end
