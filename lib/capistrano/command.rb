@@ -291,7 +291,7 @@ module Capistrano
 		def environment
 			if @environment.nil?
 				if options[:env].nil? || options[:env].empty?
-					@environment = '. /var/.cloud66_env && unset BUNDLE_GEMFILE'
+					@environment = '. /var/.cloud66_env && unset BUNDLE_GEMFILE &&'
 				else
 					@environment = if String === options[:env]
 									   ". /var/.cloud66_env && unset BUNDLE_GEMFILE && env #{options[:env]}"
