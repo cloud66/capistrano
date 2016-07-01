@@ -70,8 +70,17 @@ namespace :deploy do
       CMD
 
       if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | wc -l").to_i > 1
-        raise "More than one asset manifest file was found in '#{shared_path.shellescape}/#{shared_assets_prefix}'.  If you are upgrading a Rails 3 application to Rails 4, follow these instructions: http://github.com/capistrano/capistrano/wiki/Upgrading-to-Rails-4#asset-pipeline"
-      end
+		  logger.info "Multiple manifest assets detected; clearing old assets..."
+          run "mv #{shared_path.shellescape}/#{shared_assets_prefix} /tmp/#{shared_assets_prefix}-#{Time.now.to_s}"
+		  run <<-CMD.compact
+        cd -- #{latest_release} &&
+        RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile
+		  CMD
+	  end
+
+	  if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | wc -l").to_i > 1
+		  logger.info "Multiple manifest assets still detected; skipping..."
+	  end
 
       # Sync manifest filenames across servers if our manifest has a random filename
       if shared_manifest_path =~ /manifest-.+\./
