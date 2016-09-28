@@ -69,7 +69,7 @@ namespace :deploy do
         RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile
       CMD
 
-      if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | wc -l").to_i > 1
+      if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
 		  logger.info "Multiple manifest assets detected; clearing old assets..."
           run "mv #{shared_path.shellescape}/#{shared_assets_prefix} /tmp/#{shared_assets_prefix}-#{Time.now.to_s}"
 		  run <<-CMD.compact
@@ -78,7 +78,7 @@ namespace :deploy do
 		  CMD
 	  end
 
-	  if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | wc -l").to_i > 1
+	  if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
 		  logger.info "Multiple manifest assets still detected; skipping..."
 	  end
 
