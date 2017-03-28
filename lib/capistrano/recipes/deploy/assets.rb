@@ -65,13 +65,13 @@ namespace :deploy do
     DESC
     task :precompile, :roles => lambda { assets_role }, :except => { :no_release => true } do
       run <<-CMD.compact
-        cd -- #{latest_release} && 
+        cd -- #{latest_release} &&
         RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile
       CMD
 
       if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
 		  logger.info "Multiple manifest assets detected; clearing old assets..."
-          run "mv #{shared_path.shellescape}/#{shared_assets_prefix} /tmp/#{shared_assets_prefix}-#{Time.now.to_s}"
+          run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
 		  run <<-CMD.compact
         cd -- #{latest_release} &&
         RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile
