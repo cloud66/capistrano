@@ -75,10 +75,9 @@ namespace :deploy do
         rm -f /tmp/assets-precompile-output*.log > /dev/null && 
         cd -- #{latest_release} &&
         RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
-        echo "[STDOUT]" > #{filename_joined} &&
+        echo Results: > #{filename_joined} &&
         cat #{filename_stdout} >> #{filename_joined} &&
-        echo "[STDERR]" >> #{filename_joined} &&
-        cat #{filename_stderr} >> #{filename_joined} &&
+        cat #{filename_stderr} >> #{filename_joined} ;
         cat #{filename_joined}
       CMD
 
@@ -89,10 +88,9 @@ namespace :deploy do
             rm -f /tmp/assets-precompile-output*.log > /dev/null &&
             cd -- #{latest_release} &&
             RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
-            echo "[STDOUT]" > #{filename_joined} &&
-            cat #{filename_stdout} >> #{filename_joined} &&
-            echo "[STDERR]" >> #{filename_joined} &&
-            cat #{filename_stderr} >> #{filename_joined} &&
+            echo "Results:" > #{filename_joined} &&
+            cat #{filename_stdout} >> #{filename_joined} &&            
+            cat #{filename_stderr} >> #{filename_joined} ;
             cat #{filename_joined}
 		  CMD
 	  end
