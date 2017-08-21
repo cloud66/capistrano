@@ -77,7 +77,7 @@ namespace :deploy do
         RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
         echo Results: > #{filename_joined} &&
         cat #{filename_stdout} >> #{filename_joined} &&
-        cat #{filename_stderr} >> #{filename_joined} ;
+        cat #{filename_stderr} >> #{filename_joined} &&
         cat #{filename_joined}
       CMD
 
@@ -90,7 +90,7 @@ namespace :deploy do
             RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
             echo "Results:" > #{filename_joined} &&
             cat #{filename_stdout} >> #{filename_joined} &&            
-            cat #{filename_stderr} >> #{filename_joined} ;
+            cat #{filename_stderr} >> #{filename_joined} &&
             cat #{filename_joined}
 		  CMD
 	  end
