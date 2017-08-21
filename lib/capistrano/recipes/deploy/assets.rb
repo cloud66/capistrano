@@ -72,13 +72,13 @@ namespace :deploy do
       logger.info "Compiling assets (this may take a long time)"
 
       run <<-CMD.compact
-        rm -f /tmp/assets-precompile-output* > /dev/null
+        rm -f /tmp/assets-precompile-output*.log > /dev/null && 
         cd -- #{latest_release} &&
-        RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr}
-        echo "[STDOUT]" > #{filename_joined}
-        cat #{filename_stdout} >> #{filename_joined}
-        echo "[STDERR]" >> #{filename_joined} 
-        cat #{filename_stderr} >> #{filename_joined}
+        RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
+        echo "[STDOUT]" > #{filename_joined} &&
+        cat #{filename_stdout} >> #{filename_joined} &&
+        echo "[STDERR]" >> #{filename_joined} &&
+        cat #{filename_stderr} >> #{filename_joined} &&
         cat #{filename_joined}
       CMD
 
@@ -86,13 +86,13 @@ namespace :deploy do
 		  logger.info "Multiple manifest assets detected; clearing old assets..."
           run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
 		  run <<-CMD.compact
-            rm -f /tmp/assets-precompile-output* > /dev/null
+            rm -f /tmp/assets-precompile-output*.log > /dev/null &&
             cd -- #{latest_release} &&
-            RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr}
-            echo "[STDOUT]" > #{filename_joined}
-            cat #{filename_stdout} >> #{filename_joined}
-            echo "[STDERR]" >> #{filename_joined} 
-            cat #{filename_stderr} >> #{filename_joined}
+            RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile 1>#{filename_stdout} 2>#{filename_stderr} &&
+            echo "[STDOUT]" > #{filename_joined} &&
+            cat #{filename_stdout} >> #{filename_joined} &&
+            echo "[STDERR]" >> #{filename_joined} &&
+            cat #{filename_stderr} >> #{filename_joined} &&
             cat #{filename_joined}
 		  CMD
 	  end
