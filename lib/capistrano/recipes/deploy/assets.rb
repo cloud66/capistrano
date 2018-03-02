@@ -76,20 +76,30 @@ namespace :deploy do
       CMD
 
 		should_retry_if_multi = fetch(:retry_on_multiple_manifest, true)
-      if should_retry_if_multi && capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
-		  logger.info "Multiple manifest assets detected; clearing old assets..."
-          run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
-		  run <<-CMD.compact
-        sudo -n rm -f /tmp/assets-precompile-output*.log > /dev/null || true ; 
-        cd -- #{latest_release} && RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;
-        result=$? ;
-        cat #{filename_joined} && exit $result
-		  CMD
-	  end
 
-	  if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
-		  logger.info "Multiple manifest assets detected; skipping..."
-	  end
+		if should_retry_if_multi
+            logger.info "Testing to see if there are multiple asset manifests..."
+		else
+            logger.info "Ignoring multiple asset manifest detection..."
+		end
+        if should_retry_if_multi
+			# test for multiple
+            if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
+			  logger.info "Multiple manifest assets detected; clearing old assets..."
+    	      run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
+			  run <<-CMD.compact
+				sudo -n rm -f /tmp/assets-precompile-output*.log > /dev/null || true ; 
+				cd -- #{latest_release} && RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;
+				result=$? ;
+				cat #{filename_joined} && exit $result
+              CMD
+			end
+
+			# test again
+	  		if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
+		  		logger.info "Multiple manifest assets still detected; skipping..."
+	  		end
+		end
 
       # Sync manifest filenames across servers if our manifest has a random filename
       if shared_manifest_path =~ /manifest-.+\./
