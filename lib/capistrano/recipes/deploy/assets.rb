@@ -75,7 +75,8 @@ namespace :deploy do
         cat #{filename_joined} && exit $result
       CMD
 
-      if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
+		should_retry_if_multi = fetch(:retry_on_multiple_manifest, true)
+      if should_retry_if_multi && capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
 		  logger.info "Multiple manifest assets detected; clearing old assets..."
           run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
 		  run <<-CMD.compact
@@ -87,7 +88,7 @@ namespace :deploy do
 	  end
 
 	  if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
-		  logger.info "Multiple manifest assets still detected; skipping..."
+		  logger.info "Multiple manifest assets detected; skipping..."
 	  end
 
       # Sync manifest filenames across servers if our manifest has a random filename
