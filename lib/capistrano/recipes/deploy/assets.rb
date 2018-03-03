@@ -76,11 +76,10 @@ namespace :deploy do
       CMD
 
 		should_retry_if_multi = fetch(:retry_on_multiple_manifest, true)
-
 		if should_retry_if_multi
-            logger.info "Testing to see if there are multiple asset manifests..."
+            logger.info 'Testing to see if there are multiple asset manifests...'
 		else
-            logger.info "Ignoring multiple asset manifest detection..."
+            logger.info 'Ignoring multiple asset/clean_expired manifests...'
 		end
         if should_retry_if_multi
 			# test for multiple
@@ -99,19 +98,18 @@ namespace :deploy do
 	  		if capture("ls -1 #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* | grep -v \"manifest.js.gz\" | wc -l").to_i > 1
 		  		logger.info "Multiple manifest assets still detected; skipping..."
 	  		end
-		end
 
-      # Sync manifest filenames across servers if our manifest has a random filename
-      if shared_manifest_path =~ /manifest-.+\./
-        run <<-CMD.compact
-          [ -e #{shared_manifest_path.shellescape} ] || mv -- #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* #{shared_manifest_path.shellescape}
-        CMD
-      end
-
-      # Copy manifest to release root (for clean_expired task)
-      run <<-CMD.compact
-        cp -- #{shared_manifest_path.shellescape} #{current_release.to_s.shellescape}/assets_manifest#{File.extname(shared_manifest_path)}
-      CMD
+              # Sync manifest filenames across servers if our manifest has a random filename
+              if shared_manifest_path =~ /manifest-.+\./
+                run <<-CMD.compact
+                  [ -e #{shared_manifest_path.shellescape} ] || mv -- #{shared_path.shellescape}/#{shared_assets_prefix}/manifest* #{shared_manifest_path.shellescape}
+                CMD
+              end
+              # Copy manifest to release root (for clean_expired task)
+              run <<-CMD.compact
+                cp -- #{shared_manifest_path.shellescape} #{current_release.to_s.shellescape}/assets_manifest#{File.extname(shared_manifest_path)}
+              CMD
+        end
     end
 
     desc <<-DESC
@@ -167,7 +165,15 @@ namespace :deploy do
 
       if manifests.empty?
         logger.info "No manifests in #{releases_path}/*/assets_manifest.*"
-      else
+	  else
+          should_retry_if_multi = fetch(:retry_on_multiple_manifest, true)
+          if should_retry_if_multi
+              logger.info 'Trying to clean up old assets...'
+          else
+              logger.info 'Ignoring clean_expired manifests...'
+          end
+          if should_retry_if_multi
+
         logger.info "Fetched #{manifests.count} manifests from #{releases_path}/*/assets_manifest.*"
         current_assets = Set.new
         manifests.each do |content|
@@ -198,7 +204,8 @@ namespace :deploy do
           done;
           rm -f -- #{deploy_to.shellescape}/REQUIRED_ASSETS
         CMD
-      end
+		  end
+	  end
     end
 
     desc <<-DESC
