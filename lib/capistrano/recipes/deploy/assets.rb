@@ -66,11 +66,19 @@ namespace :deploy do
     task :precompile, :roles => lambda {assets_role}, :except => {:no_release => true} do
       timestring = Time.now.to_i
       filename_joined = "/tmp/assets-precompile-output-#{timestring}.log"
-      logger.info "Compiling assets (this may take a long time)"
+
+      use_nginx_user = fetch(:retry_on_multiple_manifest, false)
+      if use_nginx_user
+        logger.info "Compiling assets as NGINX user (this may take a long time)"
+        precompile_command = "cd -- #{latest_release} && sudo -Eu nginx bash -c \"RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1\" ;"
+      else
+        logger.info "Compiling assets (this may take a long time)"
+        precompile_command = "cd -- #{latest_release} && #{user_cmd} RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;"
+      end
 
       run <<-CMD.compact
-        sudo -n rm -f /tmp/assets-precompile-output*.log > /dev/null || true ; 
-        cd -- #{latest_release} && RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;
+        sudo -n rm -f /tmp/assets-precompile-output*.log > /dev/null || true ;
+        #{precompile_command} 
         result=$? ;
         cat #{filename_joined} && exit $result
       CMD
@@ -88,7 +96,7 @@ namespace :deploy do
           run "mv #{shared_path.shellescape}/#{shared_assets_prefix} '/tmp/#{shared_assets_prefix}-#{Time.now.to_s}'"
           run <<-CMD.compact
 				sudo -n rm -f /tmp/assets-precompile-output*.log > /dev/null || true ; 
-				cd -- #{latest_release} && RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;
+				#{precompile_command}
 				result=$? ;
 				cat #{filename_joined} && exit $result
           CMD
