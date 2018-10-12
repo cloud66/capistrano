@@ -67,7 +67,7 @@ namespace :deploy do
       timestring = Time.now.to_i
       filename_joined = "/tmp/assets-precompile-output-#{timestring}.log"
 
-      use_nginx_user = fetch(:retry_on_multiple_manifest, false)
+      use_nginx_user = fetch(:use_nginx_user, false)
       if use_nginx_user
         logger.info "Compiling assets as NGINX user (this may take a long time)"
         precompile_command = "cd -- #{latest_release} && sudo -Eu nginx bash -c \"RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1\" ;"
