@@ -73,7 +73,7 @@ namespace :deploy do
         precompile_command = "cd -- #{latest_release} && sudo -Eu nginx bash -c \"RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1\" ;"
       else
         logger.info "Compiling assets (this may take a long time)"
-        precompile_command = "cd -- #{latest_release} && #{user_cmd} RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;"
+        precompile_command = "cd -- #{latest_release} && RAILS_ENV=#{rails_env.to_s.shellescape} #{asset_env} #{rake} assets:precompile >#{filename_joined} 2>&1 ;"
       end
 
       run <<-CMD.compact
