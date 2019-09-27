@@ -28,7 +28,7 @@ module Capistrano
       # but if we do, this might slow down a deployment or cause the loop to be stuck if the logic relies
       # on all sessions finishing. The solution might be to run each session in a thread and wait on them concurrently.
       return false unless sessions.any?
-      ensure_each_session { |session| session.loop { session.busy? && (block.nil? || block.call(self)) } }
+      ensure_each_session { |session| session.loop(wait) { session.busy? && (block.nil? || block.call(self)) } }
 
       return true
     end
