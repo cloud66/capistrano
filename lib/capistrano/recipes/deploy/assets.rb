@@ -10,11 +10,12 @@ _cset :expire_assets_after, (3600 * 24 * 7)
 
 _cset :normalize_asset_timestamps, false
 
-before 'deploy:finalize_update', 'deploy:assets:symlink'
-after 'deploy:update_code', 'deploy:assets:precompile'
-before 'deploy:assets:precompile', 'deploy:assets:update_asset_mtimes'
-after 'deploy:cleanup', 'deploy:assets:clean_expired'
-after 'deploy:rollback:revision', 'deploy:assets:rollback'
+# VIC -- these are now called from within the config file directly
+# before 'deploy:finalize_update', 'deploy:assets:symlink'
+# after 'deploy:update_code', 'deploy:assets:precompile'
+# before 'deploy:assets:precompile', 'deploy:assets:update_asset_mtimes'
+# after 'deploy:cleanup', 'deploy:assets:clean_expired'
+# after 'deploy:rollback:revision', 'deploy:assets:rollback'
 
 def shared_manifest_path
   if @shared_manifest_path.nil?
